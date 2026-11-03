@@ -2,7 +2,7 @@
  * Security rule: never cache authenticated HTML, query-string routes, POSTs,
  * API responses, customer records, KYC images, statements or payment data.
  */
-const VERSION = 'foneflex-pwa-v08';
+const VERSION = 'foneflex-pwa-v09';
 const SHELL_CACHE = `${VERSION}-shell`;
 const STATIC_CACHE = `${VERSION}-static`;
 const SHELL = [
