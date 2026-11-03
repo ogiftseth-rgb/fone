@@ -64,11 +64,11 @@ function page_footer(): void {
 
         echo '</section><footer class="footer">© '.date('Y').' FoneFlex · Flexible Payments. Smarter Phone Ownership.</footer></main></div>';
         echo '<nav class="mobile-bottom-nav" aria-label="Mobile navigation">';
-        echo '<a class="mobile-nav-link'.($homeActive?' active':'').'" href="?r='.$homeRoute.'"'.($homeActive?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">⌂</span><span>Home</span></a>';
-        echo '<a class="mobile-nav-link'.($searchActive?' active':'').'" href="?r='.$searchRoute.'"'.($searchActive?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">⌕</span><span>Search</span></a>';
-        echo '<button class="mobile-nav-link mobile-add-toggle" id="mobileAddToggle" type="button" aria-expanded="false" aria-controls="mobileAddMenu"><span class="mobile-nav-icon add-icon" aria-hidden="true">＋</span><span>Add</span></button>';
-        echo '<a class="mobile-nav-link'.($route==='notifications'?' active':'').'" href="?r=notifications"'.($route==='notifications'?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">♧</span><span>Notifications</span></a>';
-        echo '<a class="mobile-nav-link'.($route==='profile'?' active':'').'" href="?r=profile"'.($route==='profile'?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">♙</span><span>Profile</span></a>';
+        echo '<a class="mobile-nav-link'.($homeActive?' active':'').'" href="?r='.$homeRoute.'"'.($homeActive?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">'.mobile_nav_icon('home').'</span><span>Home</span></a>';
+        echo '<a class="mobile-nav-link'.($searchActive?' active':'').'" href="?r='.$searchRoute.'"'.($searchActive?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">'.mobile_nav_icon('search').'</span><span>Search</span></a>';
+        echo '<button class="mobile-nav-link mobile-add-toggle" id="mobileAddToggle" type="button" aria-expanded="false" aria-controls="mobileAddMenu"><span class="mobile-nav-icon" aria-hidden="true">'.mobile_nav_icon('add').'</span><span>Add</span></button>';
+        echo '<a class="mobile-nav-link'.($route==='notifications'?' active':'').'" href="?r=notifications"'.($route==='notifications'?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">'.mobile_nav_icon('notifications').'</span><span>Notifications</span></a>';
+        echo '<a class="mobile-nav-link'.($route==='profile'?' active':'').'" href="?r=profile"'.($route==='profile'?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">'.mobile_nav_icon('profile').'</span><span>Profile</span></a>';
         echo '</nav><div class="mobile-add-menu" id="mobileAddMenu" hidden>';
         if ($platformAdmin) {
             echo '<a href="?r=platform-services">Services management</a><a href="?r=device-integrations">Device integrations</a>';
@@ -93,6 +93,16 @@ function page_footer(): void {
     echo '<script src="assets/app.js" defer></script></body></html>';
 }
 function nav_icon(string $name): string { return ['grid'=>'▦','users'=>'♙','smartphone'=>'▣','file'=>'▤','wallet'=>'◉','chart'=>'▥','shield'=>'◇','report'=>'▧','followup'=>'↗','team'=>'♟'][$name] ?? '•'; }
+function mobile_nav_icon(string $name): string {
+    $paths = [
+        'home' => '<path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2z"/>',
+        'search' => '<circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/>',
+        'add' => '<path d="M12 5v14M5 12h14"/>',
+        'notifications' => '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>',
+        'profile' => '<circle cx="12" cy="8" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2z"/>',
+    ];
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">'.$paths[$name].'</svg>';
+}
 function layout_start(string $title,string $active='dashboard'): void { page_header($title,$active); }
 function layout_end(): void { page_footer(); }
 function alert_box(): void { if(!empty($_SESSION['flash'])) { $f=$_SESSION['flash']; unset($_SESSION['flash']); echo '<div class="alert '.h($f['type']).'">'.h($f['message']).'</div>'; } }
