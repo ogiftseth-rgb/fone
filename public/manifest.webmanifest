@@ -1,0 +1,25 @@
+{
+  "id": "./",
+  "name": "FoneFlex — Phone Financing",
+  "short_name": "FoneFlex",
+  "description": "Phone hire-purchase, customer onboarding, collections and device management for retailers.",
+  "start_url": "./?r=dashboard",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f5f7fb",
+  "theme_color": "#243169",
+  "categories": ["business", "finance", "productivity"],
+  "prefer_related_applications": false,
+  "icons": [
+    {"src":"assets/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"assets/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"assets/icon-192.png","sizes":"192x192","type":"image/png","purpose":"maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Customers","short_name":"Customers","url":"./?r=customers","icons":[{"src":"assets/icon-192.png","sizes":"192x192"}]},
+    {"name":"Phone inventory","short_name":"Phones","url":"./?r=phones","icons":[{"src":"assets/icon-192.png","sizes":"192x192"}]},
+    {"name":"Payments","short_name":"Payments","url":"./?r=payments","icons":[{"src":"assets/icon-192.png","sizes":"192x192"}]}
+  ]
+}

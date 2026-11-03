@@ -1,0 +1,9 @@
+{
+  "name": "foneflex-knox-token-helper",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Official Samsung Knox Cloud token-library bridge for FoneFlex",
+  "dependencies": {
+    "knox-token-library-js": "*"
+  }
+}
