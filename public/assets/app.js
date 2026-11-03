@@ -2,6 +2,28 @@
   const menu = document.getElementById('menuToggle');
   const sidebar = document.getElementById('sidebar');
   menu?.addEventListener('click', () => sidebar?.classList.toggle('open'));
+  const addToggle = document.getElementById('mobileAddToggle');
+  const addMenu = document.getElementById('mobileAddMenu');
+  addToggle?.addEventListener('click', () => {
+    const isOpen = addToggle.getAttribute('aria-expanded') === 'true';
+    addToggle.setAttribute('aria-expanded', String(!isOpen));
+    if (addMenu) addMenu.hidden = isOpen;
+  });
+  addMenu?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+    addMenu.hidden = true;
+    addToggle?.setAttribute('aria-expanded', 'false');
+  }));
+  document.addEventListener('click', event => {
+    if (!addMenu || addMenu.hidden || addMenu.contains(event.target) || addToggle?.contains(event.target)) return;
+    addMenu.hidden = true;
+    addToggle?.setAttribute('aria-expanded', 'false');
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !addMenu || addMenu.hidden) return;
+    addMenu.hidden = true;
+    addToggle?.setAttribute('aria-expanded', 'false');
+    addToggle?.focus();
+  });
   document.querySelectorAll('[data-modal]').forEach(btn => btn.addEventListener('click', () => {
     const modal = document.getElementById(btn.dataset.modal);
     modal?.classList.add('open');

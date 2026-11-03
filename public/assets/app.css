@@ -20,3 +20,48 @@
 .pwa-help-close{position:absolute;right:14px;top:12px;border:0;background:#f1f3f8;border-radius:50%;width:30px;height:30px;font-size:20px;color:#657087}
 @media(max-width:720px){.pwa-install-button{right:12px;bottom:calc(12px + env(safe-area-inset-bottom));padding:11px 14px}.content{padding-bottom:calc(34px + env(safe-area-inset-bottom))}.topbar{padding-top:env(safe-area-inset-top);height:calc(56px + env(safe-area-inset-top))}.sidebar{padding-top:calc(22px + env(safe-area-inset-top));padding-bottom:calc(22px + env(safe-area-inset-bottom))}.btn,button{touch-action:manipulation}}
 @media(display-mode:standalone){.pwa-install-button{display:none!important}}
+.mobile-bottom-nav{display:none}
+.mobile-add-menu{display:none}
+.mobile-add-menu[hidden]{display:none}
+.notification-panel{margin-bottom:14px}
+.notification-panel h2{font-size:13px;margin:0;color:#273148}
+.notification-list{display:flex;flex-direction:column}
+.notification-item{display:flex;align-items:center;gap:12px;padding:12px 2px;border-top:1px solid #f0f2f6}
+.notification-icon{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;font-size:17px;font-weight:800}
+.notification-icon.payment{background:#edf1ff;color:#4d60ae}
+.notification-icon.due{background:#fff4df;color:#ae7817}
+.notification-copy{flex:1;min-width:0}
+.notification-copy b,.notification-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notification-copy b{font-size:11px;color:#303b52}
+.notification-copy small{font-size:9px;color:#8d96a7;margin-top:3px}
+.notification-item>strong{font-size:10px;white-space:nowrap}
+.notification-empty{text-align:center;padding:32px 18px}
+.notification-empty>span{display:grid;place-items:center;margin:0 auto 10px;width:42px;height:42px;border-radius:50%;background:#e9f8f1;color:#13875e;font-size:23px}
+.notification-empty h2{margin:0;font-size:15px}
+.profile-card{display:flex;align-items:flex-start;gap:18px;max-width:640px}
+.profile-avatar{width:52px;height:52px;flex:0 0 52px;display:grid;place-items:center;border-radius:50%;background:#fff0e7;color:#d76b2e;font-size:22px;font-weight:800}
+.profile-details{flex:1;min-width:0}
+.profile-details h2{margin:2px 0;font-size:18px;color:#273148}
+.profile-details dl{margin:20px 0;display:grid;gap:0}
+.profile-details dl>div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;padding:11px 0;border-bottom:1px solid #f0f2f6}
+.profile-details dt{font-size:10px;color:#8992a3}
+.profile-details dd{margin:0;min-width:0;overflow-wrap:anywhere;font-size:11px;font-weight:600;color:#303b52}
+@media(max-width:720px){
+  .mobile-bottom-nav{position:fixed;inset:auto 0 0;z-index:60;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:6px 5px calc(6px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);box-shadow:0 -5px 20px #18234f0d}
+  .mobile-nav-link{min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;color:#818b9d;font-size:9px;font-weight:650;line-height:1.2;cursor:pointer}
+  .mobile-nav-link.active{color:var(--navy)}
+  .mobile-nav-icon{height:23px;display:grid;place-items:center;font-size:22px;line-height:1}
+  .mobile-nav-link.active .mobile-nav-icon{color:var(--orange)}
+  .mobile-nav-link .add-icon{width:30px;height:30px;margin-top:-13px;border:3px solid #fff;border-radius:50%;background:var(--navy);color:#fff;font-size:22px;box-shadow:0 2px 7px #18234f35}
+  .mobile-nav-link[aria-expanded="true"] .add-icon{background:var(--orange)}
+  .content{padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+  .footer{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+  .pwa-install-button{bottom:calc(76px + env(safe-area-inset-bottom))}
+  .pwa-live-region{bottom:calc(82px + env(safe-area-inset-bottom))}
+  .mobile-add-menu:not([hidden]){position:fixed;z-index:61;right:10px;bottom:calc(72px + env(safe-area-inset-bottom));display:grid;gap:3px;width:min(230px,calc(100vw - 20px));padding:8px;background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 12px 35px #18234f24}
+  .mobile-add-menu a{padding:11px 12px;border-radius:8px;color:#39445a;font-size:12px;font-weight:650}
+  .mobile-add-menu a:hover,.mobile-add-menu a:focus-visible{background:#f3f5fb;color:var(--navy);outline:none}
+  .profile-card{gap:12px}
+  .profile-details dl>div{grid-template-columns:75px minmax(0,1fr)}
+}
+@media print{.mobile-bottom-nav,.mobile-add-menu{display:none!important}}

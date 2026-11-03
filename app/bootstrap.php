@@ -53,7 +53,45 @@ function page_header(string $title, string $active='dashboard'): void {
         echo '</nav><div class="sidebar-bottom"><div class="tenant-tag">'.(is_platform_admin()?'PLATFORM ADMIN':h(strtoupper(user()['organization_name'] ?? 'MERCHANT'))).'</div><a class="nav-link" href="?r=logout"><span class="nav-icon">↪</span>Sign out</a></div></aside><main class="main"><header class="topbar"><button class="mobile-menu" id="menuToggle" aria-label="Open menu">☰</button><div class="breadcrumb">FoneFlex <span>/</span> '.h($title).'</div><div class="top-actions"><span class="live-dot"></span><span class="top-status">System online</span><div class="avatar">'.h(strtoupper(substr($name,0,1))).'</div><div class="user-mini"><b>'.h($name).'</b><small>'.h(str_replace('_',' ',user()['role'])).'</small></div></div></header><section class="content">';
     } else { echo '<main class="auth-wrap">'; }
 }
-function page_footer(): void { if(user()) echo '</section><footer class="footer">© '.date('Y').' FoneFlex · Flexible Payments. Smarter Phone Ownership.</footer></main></div>'; else echo '</main>'; echo '<script src="assets/app.js" defer></script></body></html>'; }
+function page_footer(): void {
+    if (user()) {
+        $platformAdmin = is_platform_admin();
+        $route = (string)($_GET['r'] ?? 'dashboard');
+        $homeRoute = $platformAdmin ? 'platform' : 'dashboard';
+        $searchRoute = $platformAdmin ? 'platform-phones' : 'customers';
+        $homeActive = in_array($route, ['dashboard', 'platform'], true);
+        $searchActive = in_array($route, ['customers', 'customer-profile', 'platform-phones'], true);
+
+        echo '</section><footer class="footer">© '.date('Y').' FoneFlex · Flexible Payments. Smarter Phone Ownership.</footer></main></div>';
+        echo '<nav class="mobile-bottom-nav" aria-label="Mobile navigation">';
+        echo '<a class="mobile-nav-link'.($homeActive?' active':'').'" href="?r='.$homeRoute.'"'.($homeActive?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">⌂</span><span>Home</span></a>';
+        echo '<a class="mobile-nav-link'.($searchActive?' active':'').'" href="?r='.$searchRoute.'"'.($searchActive?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">⌕</span><span>Search</span></a>';
+        echo '<button class="mobile-nav-link mobile-add-toggle" id="mobileAddToggle" type="button" aria-expanded="false" aria-controls="mobileAddMenu"><span class="mobile-nav-icon add-icon" aria-hidden="true">＋</span><span>Add</span></button>';
+        echo '<a class="mobile-nav-link'.($route==='notifications'?' active':'').'" href="?r=notifications"'.($route==='notifications'?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">♧</span><span>Notifications</span></a>';
+        echo '<a class="mobile-nav-link'.($route==='profile'?' active':'').'" href="?r=profile"'.($route==='profile'?' aria-current="page"':'').'><span class="mobile-nav-icon" aria-hidden="true">♙</span><span>Profile</span></a>';
+        echo '</nav><div class="mobile-add-menu" id="mobileAddMenu" hidden>';
+        if ($platformAdmin) {
+            echo '<a href="?r=platform-services">Services management</a><a href="?r=device-integrations">Device integrations</a>';
+        } else {
+            $role = (string)(user()['role'] ?? '');
+            $addActions = [
+                ['customer-onboarding', 'New customer', ['owner', 'admin', 'sales']],
+                ['phones', 'Add phone', ['owner', 'admin', 'sales', 'accountant', 'auditor']],
+                ['agreements', 'New sale', ['owner', 'admin', 'sales', 'collections', 'accountant', 'auditor']],
+                ['payments', 'Record payment', ['owner', 'admin', 'collections', 'cashier', 'accountant']],
+            ];
+            foreach ($addActions as [$actionRoute, $label, $roles]) {
+                if (in_array($role, $roles, true)) {
+                    echo '<a href="?r='.h($actionRoute).'">'.h($label).'</a>';
+                }
+            }
+        }
+        echo '</div>';
+    } else {
+        echo '</main>';
+    }
+    echo '<script src="assets/app.js" defer></script></body></html>';
+}
 function nav_icon(string $name): string { return ['grid'=>'▦','users'=>'♙','smartphone'=>'▣','file'=>'▤','wallet'=>'◉','chart'=>'▥','shield'=>'◇','report'=>'▧','followup'=>'↗','team'=>'♟'][$name] ?? '•'; }
 function layout_start(string $title,string $active='dashboard'): void { page_header($title,$active); }
 function layout_end(): void { page_footer(); }
@@ -127,6 +165,44 @@ try {
   require_once __DIR__ . '/modules/device_integrations.php';
   if (ffdi_handle_routes($route)) { exit; }
   if (ffdev_handle_device_routes($route)) { exit; }
+  if ($route==='notifications') {
+    $pendingPayments = [];
+    $upcomingInstallments = [];
+    if (is_platform_admin()) {
+      $pendingPayments = get_all('SELECT p.receipt_no,p.amount,p.received_at,c.full_name,o.name organization_name FROM payments p JOIN customers c ON c.id=p.customer_id JOIN organizations o ON o.id=p.organization_id WHERE p.payment_status="pending" ORDER BY p.received_at DESC LIMIT 50');
+    } else {
+      require_role(['owner','admin','sales','collections','cashier','accountant','auditor']);
+      $oid = org_id();
+      $pendingPayments = get_all('SELECT p.receipt_no,p.amount,p.received_at,c.full_name FROM payments p JOIN customers c ON c.id=p.customer_id WHERE p.organization_id=? AND p.payment_status="pending" ORDER BY p.received_at DESC LIMIT 50',[$oid]);
+      $upcomingInstallments = get_all('SELECT s.due_date,s.installment_no,(s.principal_due-s.principal_paid+s.interest_due-s.interest_paid) due,c.full_name,a.agreement_no FROM installment_schedules s JOIN agreements a ON a.id=s.agreement_id JOIN customers c ON c.id=a.customer_id WHERE s.organization_id=? AND s.status IN ("pending","partial") AND s.due_date<=DATE_ADD(CURDATE(),INTERVAL 7 DAY) AND a.status NOT IN ("settled","terminated") ORDER BY s.due_date LIMIT 50',[$oid]);
+    }
+    layout_start('Notifications','notifications'); alert_box();
+    echo '<div class="page-heading"><div><div class="eyebrow">UPDATES & REMINDERS</div><h1>Notifications</h1><p class="muted">Pending payments and installments due within the next seven days.</p></div></div>';
+    if (!$pendingPayments && !$upcomingInstallments) {
+      echo '<div class="panel notification-empty"><span aria-hidden="true">✓</span><h2>You’re all caught up</h2><p class="muted">There are no pending payment reviews or upcoming installments.</p></div>';
+    }
+    if ($pendingPayments) {
+      echo '<div class="panel notification-panel"><div class="panel-head"><div><h2>Payments awaiting review</h2><p class="muted">Pending payment records</p></div><a class="text-link" href="?r='.(is_platform_admin()?'platform-payments':'payments').'">View payments →</a></div><div class="notification-list">';
+      foreach ($pendingPayments as $payment) {
+        echo '<a class="notification-item" href="?r='.(is_platform_admin()?'platform-payments':'payments').'"><span class="notification-icon payment" aria-hidden="true">◉</span><span class="notification-copy"><b>'.h($payment['full_name']).(isset($payment['organization_name'])?' · '.h($payment['organization_name']):'').'</b><small>'.h($payment['receipt_no']).' · '.h(date('d M Y, H:i',strtotime($payment['received_at']))).'</small></span><strong>'.money($payment['amount']).'</strong></a>';
+      }
+      echo '</div></div>';
+    }
+    if ($upcomingInstallments) {
+      echo '<div class="panel notification-panel"><div class="panel-head"><div><h2>Installments due soon</h2><p class="muted">Overdue and due within the next seven days</p></div><a class="text-link" href="?r=collections">View collections →</a></div><div class="notification-list">';
+      foreach ($upcomingInstallments as $installment) {
+        echo '<a class="notification-item" href="?r=collections"><span class="notification-icon due" aria-hidden="true">!</span><span class="notification-copy"><b>'.h($installment['full_name']).' · '.h($installment['agreement_no']).'</b><small>Installment '.(int)$installment['installment_no'].' · Due '.h(date('d M Y',strtotime($installment['due_date']))).'</small></span><strong>'.money($installment['due']).'</strong></a>';
+      }
+      echo '</div></div>';
+    }
+    layout_end(); exit;
+  }
+  if ($route==='profile') {
+    $profileUser = user();
+    layout_start('Profile','profile'); alert_box();
+    echo '<div class="page-heading"><div><div class="eyebrow">ACCOUNT</div><h1>Your profile</h1><p class="muted">Your FoneFlex account details.</p></div></div><div class="panel profile-card"><div class="profile-avatar" aria-hidden="true">'.h(strtoupper(substr((string)($profileUser['full_name']??'U'),0,1))).'</div><div class="profile-details"><h2>'.h($profileUser['full_name']??'').'</h2><p class="muted">'.h(str_replace('_',' ',$profileUser['role']??'')).'</p><dl><div><dt>Email</dt><dd>'.h($profileUser['email']??'—').'</dd></div><div><dt>Phone</dt><dd>'.h($profileUser['phone']??'—').'</dd></div><div><dt>Workspace</dt><dd>'.h(is_platform_admin()?'FoneFlex Platform':($profileUser['organization_name']??'Merchant')).'</dd></div></dl><a class="btn" href="?r=logout">Sign out</a></div></div>';
+    layout_end(); exit;
+  }
   if ($route==='dashboard') {
     if(is_platform_admin()) redirect('?r=platform');
     $oid=org_id();
